@@ -1,56 +1,114 @@
-# **Finding Lane Lines on the Road** 
+# **Finding Lane Lines on the Road**
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 <img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
 
-Overview
----
-
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
-
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+# **Finding Lane Lines on the Road**
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+**Introduction: Finding Lane Lines on the Road**
 
-1. Describe the pipeline
+In this project, I used Python and OpenCV to find lane lines in the images and video included as part of the repository.
 
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+The following pipeline is used:
+1. Color Selection and Gray Scale Conversions
+2. Gaussian Blur
+3. Canny Edge Detection
+4. Probabilistic Hough Transform Line Detection
+5. Averaging and Extrapolating Lines
+6. Weighted Image
 
 
-The Project
----
+[//]: # (Image References)
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+[image1]: ./test_images_output/solidWhiteCurve_lines_edge.jpg "Grayscale"
+[image2]: ./test_images_output/solidWhiteRight_lines_edge.jpg "Grayscale"
+[image3]: ./test_images_output/solidYellowCurve2_lines_edge.jpg "Grayscale"
+[image4]: ./test_images_output/solidYellowCurve_lines_edge.jpg "Grayscale"
+[image5]: ./test_images_output/solidYellowLeft_lines_edge.jpg "Grayscale"
+[image6]: ./test_images_output/whiteCarLaneSwitch_lines_edge.jpg "Grayscale"
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
 
-**Step 2:** Open the code in a Jupyter Notebook
+[//]: # (Video References)
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
+[video1]: ./test_videos_output/challenge.mp4 "Grayscale"
+[video2]: ./test_videos_output/solidWhiteRight.mp4 "Grayscale"
+[video3]: ./test_videos_output/solidYellowLeft.mp4 "Grayscale"
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
 
-`> jupyter notebook`
 
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
+### Reflection
 
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
+### 1. Lane Length Detection Description
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+The following pipeline is used:
+1. *Color Selection and Gray Scale Conversions*: Using ```cv2.cvtColor``` we can convert the Image different color space. In this program i use two color spaces COLOR_RGB2HSL and COLOR_RGB2GRAY. By using the COLOR_RGB2HSL both the white and yellow lines are recognizable. I then construct two color masks, one for White and one for Yellow by selecting the range of each channels Hue, Saturation and Light. Mask is then combined by using the ```cv2.bitwise_or```. The combined mask returns white (255) when either white or yellow color is detected. ```cv2.bitwise_and to``` apply the combined mask onto the original RGB image. This image is then run the Gray scale conversion using the ```cv2.cvtColor```.
+2. *Gaussian Blur*: We should make the edges of the lane smoother. I use the function ```cv2.GaussianBlur``` to smooth out edges.  I used the kernel size of 19 for videos.
+3. *Canny Edge Detection*: ```cv2.Canny``` takes two threshold values. Canny recommended a upper:lower ratio between 2:1 and 3:1. I use the lower and higher threshold of 50 and 150 respectively. The smoothed image after Gaussian operation is fed into Canny Edge Detection.
+4. *Probabilistic Hough Transform Line Detection*: ```cv2.HoughLinesP``` is used to detect lines in the edge images from Canny Edge detection. Below parameters need to be played with:
+  * rho – Distance resolution of the accumulator in pixels.
+  * theta – Angle resolution of the accumulator in radians.
+  * threshold – lines are returned that get enough votes (> threshold).
+  * minLineLength – Line segments shorter than this value are rejected.
+  * maxLineGap – Max allowed gap between points on the same line to link them.
+Regions of interest has the region of the image defined by the polygon formed from `vertices` which is then passed for Hough Transform Line detection.
+5. *Averaging and Extrapolating Lines*: After the Hough Transform Line we have the multiple lines detected for a lane line. Some of these lines are not contiguous. We should come up with an averaged line and extrapolate the line to cover full lane line length. The way to do that is by calculating the slope and intercepts. There are two lane lines: one for the left and the other for the right. The left lane has positive slope, and the right lane has negative slope. Therefore, we'll collect positive slope lines and negative slope lines separately and take averages. I separate the line segments by their slope ((y2-y1)/(x2-x1)) to decide which segments are part of the left line vs. the right line.  Then, you take the ```np.mean``` of the left and right lanes: slope and intercept.  ```cv2.line``` is used to draw the line between the two points.
+6. *Weighted Image*: Finally, ```cv2.addWeighted``` is used merge the two images. The result image is computed as follows: initial_img * α + img * β + λ
 
+**Pre-requisites**
+
+$ pip install imageio (if not already installed).
+
+Then create a .py file with example ffmpeg.py:
+
+```python
+import imageio
+imageio.plugins.ffmpeg.download()
+```
+Run this script in the terminal $ python ffmpeg .py
+It installs ffmpeg.osx in a directory that should be automatically added to your path.
+
+**Output Images**
+
+![alt text][image1]
+
+![alt text][image2]
+
+![alt text][image3]
+
+![alt text][image4]
+
+![alt text][image5]
+
+![alt text][image6]
+
+**Output Videos**
+Roughly the pipeline for video is:
+VideoFileClip --> Clip --> Image --> Color Selection --> Gray Scale Conversion -->  Gaussian Blur --> Canny Edge Detection --> Hough Transform Line Detection --> Averaging and Extrapolating Lines --> Weighted Image --> Write_videofile
+
+![alt text][video1]
+
+![alt text][video2]
+
+![alt text][video3]
+
+
+### 2. Identify potential shortcomings with your current pipeline
+
+There are two potential shortcoming:
+1. Need to remove the hardcoding of the vertices
+2. In the challenge video there are some section where the lane detection goes off.
+
+
+### 3. Suggest possible improvements to your pipeline
+
+A possible improvement would be to handle the curved lines. This will require instead of drawing straight lines use the poly lines.
+
+Another potential improvement or testing would be look how this code behaves when we have roads which are going up and down since in this case the mask is assumed from the center of the image.
+
+## **Conclusion**
+
+The project was successful in that the video images clearly show the lane lines are detected properly and lines are very smoothly handled in both the videos and the images. In summary, the pipeline described above does:
+1. Line identification take road images from a video as input and return an annotated video stream as output. The output video is an annotated version of the input video.
+2. Identifies the left and right lane lines with either line segments or solid lines.
+3. Line segments has been filtered / averaged / extrapolated to map out the full extent of the left and right lane boundaries.
